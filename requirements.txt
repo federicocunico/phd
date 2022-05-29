@@ -1,0 +1,4 @@
+numpy
+# bpy
+opencv-python
+Pillow
