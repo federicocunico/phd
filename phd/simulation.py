@@ -15,6 +15,7 @@ class TrajectorySim:
         max_tracks: int,
         movement: float,
         auto_run: bool = False,
+        auto_run_random_init: bool = True,
         auto_run_fps: float = 25,
     ) -> None:
         self.image_height, self.image_width = image_height, image_width
@@ -39,6 +40,7 @@ class TrajectorySim:
 
         self.auto_run = auto_run
         self.auto_run_fps = auto_run_fps
+        self.auto_run_random_init = auto_run_random_init
 
         self._process: Optional[Thread] = None
         if self.auto_run:
@@ -57,7 +59,7 @@ class TrajectorySim:
             new_dir = np.random.randint(0, 8)
             new_pos = self._update_dir(new_dir, old_pos)
             reset = False
-            if (new_pos[1] > self.image_width) or (new_pos[0] > self.image_height) or (new_pos[0] < 0) or (new_pos[1] < 0):
+            if (new_pos[0] > self.image_width) or (new_pos[1] > self.image_height) or (new_pos[0] < 0) or (new_pos[1] < 0):
                 if new_origin_at_reset:
                     self.starting_points[track] = self.__random_init()
                 new_pos = self.starting_points[track]
@@ -89,21 +91,21 @@ class TrajectorySim:
 
     def _update_dir(self, direction: int, old_position: List[int]):
         x, y = old_position[0:2]
-        if direction == 0:
+        if direction == 0:  # E
             new_position = [x, y + self.movement]
-        elif direction == 1:
+        elif direction == 1:  # SE
             new_position = [x + self.movement, y + self.movement]
-        elif direction == 2:
+        elif direction == 2:  # S
             new_position = [x + self.movement, y]
-        elif direction == 3:
+        elif direction == 3:  # SW
             new_position = [x + self.movement, y - self.movement]
-        elif direction == 4:
+        elif direction == 4:  # W
             new_position = [x, y - self.movement]
-        elif direction == 5:
+        elif direction == 5:  # NW
             new_position = [x - self.movement, y - self.movement]
-        elif direction == 6:
+        elif direction == 6:  # N
             new_position = [x - self.movement, y]
-        elif direction == 7:
+        elif direction == 7:  # NE
             new_position = [x - self.movement, y + self.movement]
         else:
             raise NotImplementedError(
@@ -119,21 +121,19 @@ class TrajectorySim:
             self.tracks_history[track].append(new_position)
 
     def __random_init(self):
-        return np.asarray(
-            [
-                np.random.randint(0, self.image_height),
-                np.random.randint(0, self.image_width),
-            ]
-        )
+        return np.asarray([
+            np.random.randint(0, self.image_height),
+            np.random.randint(0, self.image_width),
+        ])
 
     def _run(self) -> None:
         while True:
-            self.step()
+            self.step(self.auto_run_random_init)
             time.sleep(1/self.auto_run_fps)
 
 
 def __test__():
-    sim = TrajectorySim(640, 480, 3, 25, auto_run=True)
+    sim = TrajectorySim(640, 480, 1, 25, auto_run=True)
     while True:
         image = sim.show()
         cv2.imshow("frame", image)
