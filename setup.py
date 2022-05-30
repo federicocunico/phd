@@ -14,10 +14,10 @@ setup(
     name="phd",
     version="0.0.1",
     author="Federico Cunico",
+    url="https://github.com/federicocunico/phd",
     author_email="federico@cunico.net",
     packages=find_packages(),
     install_requires=install_requires
-    
 )
 
 
